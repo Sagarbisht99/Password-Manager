@@ -144,7 +144,7 @@ export default function StorePage() {
           {passwords.map((item) => (
             <form
               key={item._id}
-              className="bg-[#111] border border-gray-700 p-6 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300"
+              className="bg-[#111] cursor-pointer border border-gray-700 p-6 rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300"
             >
               <label className="block text-sm text-gray-400 mb-1">URL</label>
               <input
