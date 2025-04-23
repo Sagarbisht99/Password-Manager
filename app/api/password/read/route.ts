@@ -6,11 +6,13 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const { userId } = await auth();
+    console.log("Fetched userId:", userId);  // Log the userId
 
     await connectDb();
 
-    // User-specific passwords fetch kar rahe hain
+    // Fetch user-specific passwords
     const passwords = await PasswordModel.find({ userId });
+    console.log("Fetched passwords:", passwords);  // Log the passwords
 
     return NextResponse.json({ passwords }, { status: 200 });
   } catch (error) {
@@ -21,3 +23,4 @@ export async function GET() {
     );
   }
 }
+
