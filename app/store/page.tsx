@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
@@ -13,11 +14,17 @@ interface Password {
 
 export default function StorePage() {
   const [passwords, setPasswords] = useState<Password[]>([]);
-  const [visiblePasswords, setVisiblePasswords] = useState<{ [key: string]: boolean }>({});
+  const [visiblePasswords, setVisiblePasswords] = useState<{
+    [key: string]: boolean;
+  }>({});
   const [showModal, setShowModal] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editModal, setEditModal] = useState(false);
-  const [editForm, setEditForm] = useState<{ id: string; url: string; confirmPassword: string }>({
+  const [editForm, setEditForm] = useState<{
+    id: string;
+    url: string;
+    confirmPassword: string;
+  }>({
     id: "",
     url: "",
     confirmPassword: "",
@@ -95,22 +102,26 @@ export default function StorePage() {
         },
         body: JSON.stringify(editForm),
       });
-  
+
       if (res.ok) {
         toast.success("✅ Password updated", {
           position: "bottom-center",
           autoClose: 2000,
           theme: "dark",
         });
-  
+
         setPasswords((prev) =>
           prev.map((p) =>
             p._id === editForm.id
-              ? { ...p, url: editForm.url, confirmPassword: editForm.confirmPassword }
+              ? {
+                  ...p,
+                  url: editForm.url,
+                  confirmPassword: editForm.confirmPassword,
+                }
               : p
           )
         );
-  
+
         setEditModal(false);
       } else {
         toast.error("❌ Failed to update password");
@@ -120,7 +131,6 @@ export default function StorePage() {
       console.error(err);
     }
   };
-  
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-20">
@@ -143,7 +153,9 @@ export default function StorePage() {
                 className="w-full mb-4 px-3 py-2 rounded-lg bg-transparent border border-gray-600 text-white"
               />
 
-              <label className="block text-sm text-gray-400 mb-1">Password</label>
+              <label className="block text-sm text-gray-400 mb-1">
+                Password
+              </label>
               <div className="relative">
                 <input
                   value={item.confirmPassword}
@@ -180,6 +192,11 @@ export default function StorePage() {
               </div>
             </form>
           ))}
+          <Link href="/">
+            <button className="bg-green-500 hover:bg-green-600 p-3 rounded-xl text-black font-semibold transition-colors duration-200">
+              Add Password
+            </button>
+          </Link>
         </ul>
       )}
 
@@ -188,7 +205,9 @@ export default function StorePage() {
         <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
           <div className="bg-[#111]  rounded-xl p-8 shadow-lg text-center max-w-sm w-full">
             <h2 className="text-xl font-bold mb-4">Are you sure?</h2>
-            <p className="text-gray-400 mb-6">Do you really want to delete this password?</p>
+            <p className="text-gray-400 mb-6">
+              Do you really want to delete this password?
+            </p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => setShowModal(false)}
@@ -215,14 +234,21 @@ export default function StorePage() {
 
             <input
               value={editForm.url}
-              onChange={(e) => setEditForm((prev) => ({ ...prev, url: e.target.value }))}
+              onChange={(e) =>
+                setEditForm((prev) => ({ ...prev, url: e.target.value }))
+              }
               placeholder="URL"
               className="w-full mb-3 px-3 py-2 rounded-md bg-transparent border border-gray-600 text-white"
             />
 
             <input
               value={editForm.confirmPassword}
-              onChange={(e) => setEditForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
+              onChange={(e) =>
+                setEditForm((prev) => ({
+                  ...prev,
+                  confirmPassword: e.target.value,
+                }))
+              }
               placeholder="Password"
               className="w-full mb-6 px-3 py-2 rounded-md bg-transparent border border-gray-600 text-white"
             />
