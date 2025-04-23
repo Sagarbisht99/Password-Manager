@@ -1,12 +1,17 @@
+import { auth } from "@clerk/nextjs/server";
 import { connectDb } from "@/app/utils/dbConnect";
 import PasswordModel from "@/app/models/Password";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
+    const { userId } = await auth();
+
     await connectDb();
 
-    const passwords = await PasswordModel.find();
+    // User-specific passwords fetch kar rahe hain
+    const passwords = await PasswordModel.find({ userId });
+
     return NextResponse.json({ passwords }, { status: 200 });
   } catch (error) {
     console.log("GET Error:", error);

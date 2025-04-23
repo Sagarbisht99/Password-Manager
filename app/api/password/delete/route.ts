@@ -1,5 +1,4 @@
-// app/api/password/delete/route.ts
-
+import { auth } from "@clerk/nextjs/server";
 import { connectDb } from "@/app/utils/dbConnect";
 import PasswordModel from "@/app/models/Password";
 import { NextResponse } from "next/server";
@@ -8,6 +7,7 @@ import { ObjectId } from "mongodb";
 // Handle POST Request (to delete)
 export async function POST(req: Request) {
   try {
+    const { userId } = await auth(); // Get userId from Clerk
     const { id } = await req.json();
 
     if (!id) {
@@ -16,7 +16,8 @@ export async function POST(req: Request) {
 
     await connectDb();
 
-    const result = await PasswordModel.deleteOne({ _id: new ObjectId(id) });
+    // User-specific password deletion
+    const result = await PasswordModel.deleteOne({ _id: new ObjectId(id), userId });
 
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: "Not Found" }, { status: 404 });
