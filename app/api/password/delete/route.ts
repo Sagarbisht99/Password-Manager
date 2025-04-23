@@ -4,28 +4,40 @@ import PasswordModel from "@/app/models/Password";
 import { NextResponse } from "next/server";
 import { ObjectId } from "mongodb";
 
-// Handle POST Request (to delete)
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth(); // Get userId from Clerk
-    const { id } = await req.json();
+    const { userId } = await auth();
 
-    if (!id) {
-      return NextResponse.json({ error: "ID missing" }, { status: 400 });
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+
+    const { id } = body;
+
+    if (!id || typeof id !== "string") {
+      return NextResponse.json({ error: "Invalid or missing ID" }, { status: 400 });
     }
 
     await connectDb();
 
-    // User-specific password deletion
-    const result = await PasswordModel.deleteOne({ _id: new ObjectId(id), userId });
+    const result = await PasswordModel.deleteOne({
+      _id: new ObjectId(id),
+      userId,
+    });
 
     if (result.deletedCount === 0) {
-      return NextResponse.json({ error: "Not Found" }, { status: 404 });
+      return NextResponse.json({ error: "No matching record found" }, { status: 404 });
     }
 
-    return NextResponse.json({ message: "Deleted successfully" });
-  } catch (err) {
-    console.log("Error in delete route:", err);
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    return NextResponse.json({ message: "Password deleted successfully!" }, { status: 200 });
+
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
 }

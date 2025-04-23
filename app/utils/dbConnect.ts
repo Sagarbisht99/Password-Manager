@@ -1,15 +1,27 @@
 import mongoose from "mongoose";
 
-export const connectDb = async () => {
-  if (mongoose.connections[0].readyState) return;
+let isConnected: boolean = false; // Track connection state outside function
+
+export const connectDb = async (): Promise<void> => {
+  if (isConnected) return;
 
   try {
+    if (mongoose.connection.readyState >= 1) {
+      isConnected = true;
+      return;
+    }
+
     await mongoose.connect(process.env.MONGO_DB_URL as string, {
-      dbName: "PassswordDB",
+      dbName: "PasswordDB",
+      // Optional performance flags
+      maxPoolSize: 10,
+      serverSelectionTimeoutMS: 5000,
     });
 
-    console.log("✅ MongoDB Connected");
+    isConnected = true;
+    console.log("✅ MongoDB connected");
   } catch (error) {
-    console.log(error, "This is not working");
+    console.error("❌ MongoDB connection error:", error);
+    process.exit(1); // Fail fast (DSA rule: if init fails, exit)
   }
 };

@@ -6,21 +6,26 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const { userId } = await auth();
-    console.log("Fetched userId:", userId);  // Log the userId
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    }
 
     await connectDb();
 
-    // Fetch user-specific passwords
     const passwords = await PasswordModel.find({ userId });
-    console.log("Fetched passwords:", passwords);  // Log the passwords
+
+    if (!passwords || passwords.length === 0) {
+      return NextResponse.json({ message: "No passwords found" }, { status: 200 });
+    }
 
     return NextResponse.json({ passwords }, { status: 200 });
+
   } catch (error) {
-    console.log("GET Error:", error);
+    console.error(error);
     return NextResponse.json(
-      { error: "Failed to fetch passwords" },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
 }
-

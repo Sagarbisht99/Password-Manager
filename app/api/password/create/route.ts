@@ -3,26 +3,48 @@ import { connectDb } from "@/app/utils/dbConnect";
 import PasswordModel from "@/app/models/Password";
 import { NextResponse } from "next/server";
 
+type FormType = {
+  url: string;
+  confirmPassword: string;
+};
+
 export async function POST(req: Request) {
   try {
-    const { userId } = await auth(); // Clerk se user ID le rahe hain
-    const { form } = await req.json();
-    const { url, confirmPassword } = form;
+    const { userId } = await auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+
+    if (!body.form || typeof body.form !== "object") {
+      return NextResponse.json({ error: "Invalid payload format" }, { status: 400 });
+    }
+
+    const { url, confirmPassword } = body.form as FormType;
+
+    if (!url || !confirmPassword) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 422 });
+    }
+
     await connectDb();
 
-    // User-specific password save kar rahe hain
-    await PasswordModel.create({
+    const saved = await PasswordModel.create({
       url,
       confirmPassword,
-      userId, // Store the user ID
+      userId,
     });
 
-    return NextResponse.json({ message: "Password saved!" }, { status: 200 });
-  } catch (error) {
-    console.log(error, "there is a error");
     return NextResponse.json(
-      { error: "Failed to process the request" },
-      { status: 400 }
+      { message: "Password saved successfully!", data: saved },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json(
+      { error: "Something went wrong while saving password." },
+      { status: 500 }
     );
   }
 }

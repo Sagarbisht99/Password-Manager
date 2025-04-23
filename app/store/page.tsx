@@ -37,7 +37,13 @@ export default function StorePage() {
           method: "GET",
         });
         const data = await res.json();
-        setPasswords(data.passwords);
+
+        // Ensure data is in the correct format (array of passwords)
+        if (Array.isArray(data.passwords)) {
+          setPasswords(data.passwords);
+        } else {
+          console.error("Invalid data format", data);
+        }
       } catch (err) {
         console.error("Failed to fetch passwords", err);
       }
@@ -137,7 +143,7 @@ export default function StorePage() {
       <ToastContainer />
       <h1 className="text-3xl font-bold mb-10 text-center">Stored Passwords</h1>
 
-      {passwords.length === 0 ? (
+      {passwords && passwords.length === 0 ? (
         <p className="text-center text-gray-400">No passwords stored yet.</p>
       ) : (
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
