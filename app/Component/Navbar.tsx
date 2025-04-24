@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   SignInButton,
   SignUpButton,
@@ -12,21 +12,46 @@ import Link from "next/link";
 
 const Navbar = () => {
   const [isSliderOpen, setIsSliderOpen] = useState<boolean>(false);
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  // Scroll effect logic
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        setShowNavbar(false);
+      } else {
+        setShowNavbar(true);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [lastScrollY]);
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 bg-transparent backdrop-blur-md border-b border-white/10 text-white">
+      <nav
+        className={`fixed w-full z-50 transition-all duration-300 bg-transparent backdrop-blur-md border-b border-white/10 text-white ${
+          showNavbar ? "top-0" : "-top-24"
+        }`}
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
           {/* Logo */}
           <Link href="/">
-            <div className=" text-lg md:text-2xl font-bold tracking-wide">
+            <div className="text-lg md:text-2xl font-bold tracking-wide">
               🔐 Password Vault
             </div>
           </Link>
 
           {/* Desktop Menu */}
-
-          {/* Auth Buttons */}
           <header className="hidden md:flex items-center gap-3">
             <ul className="hidden md:flex space-x-8 font-medium text-sm mr-4">
               <Link href="/">
