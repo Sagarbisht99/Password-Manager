@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Loader from "../Component/Loader";
 
 interface Password {
   _id: string;
@@ -20,6 +21,7 @@ export default function StorePage() {
   const [showModal, setShowModal] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [editModal, setEditModal] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [editForm, setEditForm] = useState<{
     id: string;
     url: string;
@@ -38,7 +40,6 @@ export default function StorePage() {
         });
         const data = await res.json();
 
-        // Ensure data is in the correct format (array of passwords)
         if (Array.isArray(data.passwords)) {
           setPasswords(data.passwords);
         } else {
@@ -46,6 +47,8 @@ export default function StorePage() {
         }
       } catch (err) {
         console.error("Failed to fetch passwords", err);
+      } finally {
+        setLoading(false); // Set loading false in both success and failure
       }
     };
 
@@ -65,9 +68,7 @@ export default function StorePage() {
     try {
       const res = await fetch("/api/password/delete", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: selectedId }),
       });
 
@@ -103,9 +104,7 @@ export default function StorePage() {
     try {
       const res = await fetch("/api/password/update", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editForm),
       });
 
@@ -143,8 +142,17 @@ export default function StorePage() {
       <ToastContainer />
       <h1 className="text-3xl font-bold mb-10 text-center">Stored Passwords</h1>
 
-      {passwords && passwords.length === 0 ? (
-        <p className="text-center text-gray-400">No passwords stored yet.</p>
+      {loading ? (
+        <Loader />
+      ) : passwords.length === 0 ? (
+        <div className="flex flex-col gap-5 items-center justify-center">
+          <p className="text-center text-gray-400">No passwords stored yet.</p>
+          <Link href="/">
+            <button className="bg-green-500 hover:bg-green-600 p-3 rounded-xl text-black font-semibold transition-colors duration-200">
+              Add Passwords
+            </button>
+          </Link>
+        </div>
       ) : (
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {passwords.map((item) => (
@@ -198,8 +206,8 @@ export default function StorePage() {
               </div>
             </form>
           ))}
-          <Link href="/">
-            <button className="bg-green-500 hover:bg-green-600 p-3 rounded-xl text-black font-semibold transition-colors duration-200">
+          <Link className="inline-block" href="/">
+            <button className="bg-green-500 inline-block hover:bg-green-600 p-3 rounded-xl text-black font-semibold transition-colors duration-200">
               Add Password
             </button>
           </Link>
@@ -209,7 +217,7 @@ export default function StorePage() {
       {/* DELETE MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-[#111]  rounded-xl p-8 shadow-lg text-center max-w-sm w-full">
+          <div className="bg-[#111] rounded-xl p-8 shadow-lg text-center max-w-sm w-full">
             <h2 className="text-xl font-bold mb-4">Are you sure?</h2>
             <p className="text-gray-400 mb-6">
               Do you really want to delete this password?

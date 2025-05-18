@@ -4,6 +4,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Passwordform = () => {
+
   const [form, setForm] = useState({
     url: "",
     Password: "",
@@ -68,8 +69,6 @@ const Passwordform = () => {
       return;
     }
 
-  
-
     const response = await fetch(`/api/password/create`, {
       method: "POST",
       headers: {
@@ -90,6 +89,8 @@ const Passwordform = () => {
         draggable: false,
         theme: "dark",
       });
+
+     
     } else {
       toast.error("There was an error saving your password.", {
         position: "bottom-right",
